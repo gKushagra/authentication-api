@@ -12,18 +12,18 @@ const {
     refreshKeyController
 } = require("./../controllers/apiAccessController");
 
-router.post('/login');
+router.post('/login', loginController);
 
-router.post('/register');
+router.post('/register', registerController);
 
-router.post('/reset');
+router.post('/reset', resetController);
 
-router.post('/reset/:token');
+router.post('/reset/:token', validateResetController);
 
-router.post('/');   // get key, config: db creds[host,port,pwd,db,user], password reqs=[letters,digits,special] [encrypt]=[1,2,3,4,5,6,7,8]
+router.post('/', initialSetupController);   // get key, config: db creds[host,port,pwd,db,user], password reqs=[letters,digits,special] [encrypt]=[1,2,3,4,5,6,7,8]
 
-router.post('/config'); // update config
+router.post('/config', updateConfigController); // update config
 
-router.get('/refresh/:token'); // get new key
+router.get('/refresh/:token', refreshKeyController); // get new key
 
 module.exports = router;

@@ -2,7 +2,6 @@ require("dotenv").config();
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-const mongoose = require("mongoose");
 
 // init app
 const app = express();
@@ -12,14 +11,8 @@ app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-// connect to db
-mongoose.connect("mongodb://localhost:27017/SSO_Users", {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  useFindAndModify: false
-});
-
 // import data models
+require("./models/ssoUser");
 require("./models/user");
 require("./models/profile");
 

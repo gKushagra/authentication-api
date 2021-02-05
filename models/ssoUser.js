@@ -11,21 +11,17 @@ const SSOUserSchema = new Schema({
 });
 
 SSOUserSchema.methods.setPassword = function (password) {
-    bcrypt.hash(password, 10, (err, hash) => {
-        if (err) console.log(err);
-        this.password = hash;
-    });
+    const salt = bcrypt.genSaltSync(10);
+    const hash = bcrypt.hashSync(password, salt);
+    this.password = hash;
 }
 
 SSOUserSchema.methods.validatePassword = function (password, hash) {
-    return bcrypt.compare(password, hash, (err, result) => {
-        if (err) console.log(err);
-        return result;
-    });
+    return bcrypt.compareSync(password, hash);
 }
 
-SSOUserSchema.methods.getToken = function (userID) {
-    return jwt.sign({ id: userID }, process.env.TOKEN_SKT);
+SSOUserSchema.methods.getToken = function () {
+    return jwt.sign({ id: this._id }, process.env.TOKEN_SKT);
 }
 
 mongoose.model("SSOUsers", SSOUserSchema);
