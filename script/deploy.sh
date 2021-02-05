@@ -1,6 +1,6 @@
 #!/bin/sh
 
-cd /var/myapps/oddfellow-sso
+cd /var/myapps/oddfelow-sso
 sudo pm2 stop oddfellow-sso-api
 sudo git pull origin main
 sudo npm install
