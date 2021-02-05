@@ -61,8 +61,40 @@ const registerService = async (req) => {
     return { message: "user created", token: token }
 }
 
-const loginService = async (req, res, next) => {
+/**
+ * [TESTED]
+ * 
+ * @param {*} req 
+ * 
+ * Algorithm
+ * step 1: check if a user exists
+ * step 2: validate password
+ * step 3: based on validation result, return res
+ */
+const loginService = async (req) => {
     const user = req.body;
+
+    try {
+        var _userFound = await SSOUser.findOne({ email: user.email });
+    } catch (error) {
+        console.log(error);
+        throw new Error(error);
+    }
+
+    if (_userFound) {
+        const _existingUser = new SSOUser(_userFound);
+        var validUser = _existingUser.validatePassword(user.password, _existingUser.password);
+
+        if (validUser) {
+            const token = _existingUser.getToken();
+
+            return { message: "authorized", token: token }
+        } else {
+            return { message: "unauthorized" }
+        }
+    } else {
+        return { message: "user not found" }
+    }
 }
 
 const resetService = async (req, res, next) => {
