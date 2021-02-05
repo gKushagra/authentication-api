@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "test": "./node_modules/.bin/mocha --exit ./test/test.js",
-    "deploy": "./script/deploy.sh",
+    "deploy": "bash ./script/deploy.sh",
     "start": "node server.js",
     "dev": "nodemon server.js",
     "socket": "nodemon /socketio/server.js"
