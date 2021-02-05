@@ -35,4 +35,4 @@ app.use("/v1/api", apiAccessRoutes);
 app.use("/v1/auth", authRoutes);
 app.use("/v1/user", userRoutes);
 
-app.listen(2048);
+app.listen(2048, () => { console.log('api running on port 2048') });
