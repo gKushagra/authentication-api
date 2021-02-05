@@ -1,22 +1,34 @@
 require("dotenv").config();
 const dbDriver = require("mongoose");
-
-try {
-  dbDriver.connect(`${process.env.CENTRAL_STORE_HOST}`, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    useFindAndModify: false,
-  });
-
-  console.log("db connected");
-} catch (error) {
-  console.log("db connection error");
-  console.log(error);
-}
-
 const SSOUser = dbDriver.model("SSOUsers");
 const ResetAuth = dbDriver.model("ResetAuth");
 const mailer = require("nodemailer");
+
+async function connectDb() {
+  try {
+    dbDriver.connect(`${process.env.CENTRAL_STORE_HOST}`, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      useFindAndModify: false,
+    });
+
+    console.log("db connected");
+  } catch (error) {
+    console.log("db connection error");
+    console.log(error);
+  }
+}
+
+async function disconnectDb() {
+  try {
+    dbDriver.disconnect();
+
+    console.log("db dis-connected");
+  } catch (error) {
+    console.log("db dis-connection error");
+    console.log(error);
+  }
+}
 
 /**
  * [TESTED]
@@ -35,14 +47,21 @@ const mailer = require("nodemailer");
 const registerService = async (req) => {
   const user = req.body;
 
+  await connectDb();
+
   try {
     var emailExists = await SSOUser.exists({ email: user.email });
   } catch (error) {
+    await disconnectDb();
     console.log(error);
     throw new Error(error);
   }
 
-  if (emailExists) return { message: "email exists" };
+  if (emailExists) {
+    await disconnectDb();
+
+    return { message: "email exists" };
+  }
 
   const _newUser = new SSOUser(user);
 
@@ -53,12 +72,15 @@ const registerService = async (req) => {
   try {
     await _newUser.save();
   } catch (error) {
+    await disconnectDb();
     console.log(error);
     throw new Error(error);
   }
 
   const token = _newUser.getToken();
   console.log(token);
+
+  await disconnectDb();
 
   return { message: "user created", token: token };
 };
@@ -76,9 +98,12 @@ const registerService = async (req) => {
 const loginService = async (req) => {
   const user = req.body;
 
+  await connectDb();
+
   try {
     var _userFound = await SSOUser.findOne({ email: user.email });
   } catch (error) {
+    await disconnectDb();
     console.log(error);
     throw new Error(error);
   }
@@ -93,11 +118,17 @@ const loginService = async (req) => {
     if (validUser) {
       const token = _existingUser.getToken();
 
+      await disconnectDb();
+
       return { message: "authorized", token: token };
     } else {
+      await disconnectDb();
+
       return { message: "unauthorized" };
     }
   } else {
+    await disconnectDb();
+
     return { message: "user not found" };
   }
 };
@@ -113,17 +144,24 @@ const resetService = async (req) => {
   const userEmail = req.body.email;
   console.log(userEmail);
 
+  await connectDb();
+
   // check if acc with this email exists?
   try {
     var _userExists = await SSOUser.exists({ email: userEmail });
   } catch (error) {
+    await disconnectDb();
     console.log(error);
     throw new Error(error);
   }
 
   console.log(_userExists);
 
-  if (!_userExists) return { message: "user not found" };
+  if (!_userExists) {
+    await disconnectDb();
+
+    return { message: "user not found" };
+  }
 
   const _newResetReq = new ResetAuth({ email: userEmail, uid: null });
 
@@ -135,9 +173,12 @@ const resetService = async (req) => {
   try {
     await _newResetReq.save();
   } catch (error) {
+    await disconnectDb();
     console.log(error);
     throw new Error();
   }
+
+  await disconnectDb();
 
   //   send mail
   let transporter = await mailer.createTransport({
@@ -183,25 +224,31 @@ const resetService = async (req) => {
 
 /**
  *  [TESTED]
- *  
+ *
  * @param {*} req
  *
  */
 const validateResetService = async (req) => {
   const _newPass = req.body.password;
   const uid = req.params.token;
-  console.log(uid)
+  console.log(uid);
+
+  await connectDb();
 
   try {
     var _matchingUid = await ResetAuth.findOne({ uid: uid });
   } catch (error) {
+    await disconnectDb();
     console.log(error);
     throw new Error(error);
   }
 
   console.log(_matchingUid);
 
-  if (!_matchingUid) return { message: "invalid reset request" };
+  if (!_matchingUid) {
+    await disconnectDb();
+    return { message: "invalid reset request" };
+  }
 
   var _updateUser = new SSOUser({
     email: _matchingUid.email,
@@ -216,9 +263,12 @@ const validateResetService = async (req) => {
       { password: _updateUser.password }
     );
   } catch (error) {
+    await disconnectDb();
     console.log(error);
     throw new Error(error);
   }
+
+  await disconnectDb();
 
   let transporter = await mailer.createTransport({
     host: process.env.EHOST,
