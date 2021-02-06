@@ -2,6 +2,7 @@ require("dotenv").config();
 const dbDriver = require("mongoose");
 const SSOUser = dbDriver.model("SSOUsers");
 const ResetAuth = dbDriver.model("ResetAuth");
+const SSOUserConfig = dbDriver.model("SSOUserConfig");
 const mailer = require("nodemailer");
 
 async function connectDb() {
@@ -47,7 +48,15 @@ async function disconnectDb() {
 const registerService = async (req) => {
   const user = req.body;
 
-  await connectDb();
+  if (req.externalUser) {
+    dbDriver.connect(`mongodb://${req.user.db_user}:${req.user.db_pwd}@${req.user.db_host}:${req.user.db_port}/${req.user.db_database}`, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      useFindAndModify: false,
+    })
+  } else {
+    await connectDb();
+  }
 
   try {
     var emailExists = await SSOUser.exists({ email: user.email });
@@ -98,7 +107,15 @@ const registerService = async (req) => {
 const loginService = async (req) => {
   const user = req.body;
 
-  await connectDb();
+  if (req.externalUser) {
+    dbDriver.connect(`mongodb://${req.user.db_user}:${req.user.db_pwd}@${req.user.db_host}:${req.user.db_port}/${req.user.db_database}`, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      useFindAndModify: false,
+    })
+  } else {
+    await connectDb();
+  }
 
   try {
     var _userFound = await SSOUser.findOne({ email: user.email });
@@ -144,7 +161,15 @@ const resetService = async (req) => {
   const userEmail = req.body.email;
   console.log(userEmail);
 
-  await connectDb();
+  if (req.externalUser) {
+    dbDriver.connect(`mongodb://${req.user.db_user}:${req.user.db_pwd}@${req.user.db_host}:${req.user.db_port}/${req.user.db_database}`, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      useFindAndModify: false,
+    })
+  } else {
+    await connectDb();
+  }
 
   // check if acc with this email exists?
   try {
@@ -233,7 +258,15 @@ const validateResetService = async (req) => {
   const uid = req.params.token;
   console.log(uid);
 
-  await connectDb();
+  if (req.externalUser) {
+    dbDriver.connect(`mongodb://${req.user.db_user}:${req.user.db_pwd}@${req.user.db_host}:${req.user.db_port}/${req.user.db_database}`, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      useFindAndModify: false,
+    })
+  } else {
+    await connectDb();
+  }
 
   try {
     var _matchingUid = await ResetAuth.findOne({ uid: uid });
@@ -307,11 +340,11 @@ const validateResetService = async (req) => {
   return { message: "password reset successfully" };
 };
 
-const initialSetupService = async (req, res, next) => {};
+const initialSetupService = async (req) => { };
 
-const updateConfigService = async (req, res, next) => {};
+const updateConfigService = async (req) => { };
 
-const refreshKeyService = async (req, res, next) => {};
+const refreshKeyService = async (req) => { };
 
 module.exports = {
   registerService,
