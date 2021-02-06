@@ -1,14 +1,13 @@
 const express = require("express");
 const router = express.Router();
-const checkAuth = require("./../middlewares/checkAuth");
 
 const {
   saveUserProfileController,
   getUserProfileController,
 } = require("./../controllers/userController");
 
-router.post("/profile", checkAuth, saveUserProfileController);
+router.post("/profile", saveUserProfileController);
 
-router.get("/profile/:id", checkAuth, getUserProfileController);
+router.get("/profile/:id", getUserProfileController);
 
 module.exports = router;
