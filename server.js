@@ -8,7 +8,7 @@ const app = express();
 
 // for integration test
 app.get("/test", function (req, res) {
-  res.send('Hi! You have reached OddFellow SSO REST API Test endpoint. <a href="https://sso.oddfellow.in">Visit Website</a>');
+  res.send('Hi! You have called OddFellow SSO REST API Test endpoint. <a href="https://sso.oddfellow.in">Visit Website</a>');
 });
 
 // configure app
