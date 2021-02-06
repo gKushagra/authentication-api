@@ -8,7 +8,7 @@ describe("GET /test", function () {
     request(app)
       .get("/test")
       .expect(
-        'Hi! You have reached OddFellow SSO REST API Test endpoint. <a href="https://sso.oddfellow.in">Visit Website</a>',
+        'Hi! You have called OddFellow SSO REST API Test endpoint. <a href="https://sso.oddfellow.in">Visit Website</a>',
         done
       );
   });
