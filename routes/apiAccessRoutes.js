@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const router = express.Router();
 
+const checkAuth = require('./../middlewares/checkAuth');
 const validateKey = require('./../middlewares/validateKey');
 
 const {
@@ -11,7 +12,8 @@ const {
     validateResetController,
     initialSetupController,
     updateConfigController,
-    refreshKeyController
+    refreshKeyController,
+    getUserConfigController
 } = require("./../controllers/apiAccessController");
 
 /**
@@ -25,11 +27,15 @@ router.post('/api/reset', resetController);
 
 router.post('/api/reset/:token', validateResetController);
 
-router.post('/', initialSetupController);   // get key, config: db creds[host,port,pwd,db,user], password reqs=[letters,digits,special] [encrypt]=[1,2,3,4,5,6,7,8]
 
-router.post('/config', updateConfigController); // update config
+router.get('/config', checkAuth, getUserConfigController);
 
-router.get('/refresh/:token', refreshKeyController); // get new key
+router.post('/config', checkAuth, initialSetupController);
+
+router.put('/config', checkAuth, updateConfigController);
+
+
+router.get('/refresh/:token', checkAuth, refreshKeyController);
 
 /**
  *  Public Access API Endpoints

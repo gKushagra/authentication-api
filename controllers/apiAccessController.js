@@ -5,7 +5,8 @@ const {
     validateResetService,
     initialSetupService,
     updateConfigService,
-    refreshKeyService
+    refreshKeyService,
+    getUserConfigService
 } = require("./../services/apiAccessService");
 
 const registerController = async (req, res, next) => {
@@ -56,6 +57,15 @@ const initialSetupController = async (req, res, next) => {
     }
 }
 
+const getUserConfigController = async (req, res, next) => {
+    try {
+        let data = await getUserConfigService(req);
+        res.status(200).json(data);
+    } catch (error) {
+        res.sendStatus(500);
+    }
+}
+
 const updateConfigController = async (req, res, next) => {
     try {
         let data = await updateConfigService(req);
@@ -80,6 +90,7 @@ module.exports = {
     resetController,
     validateResetController,
     initialSetupController,
+    getUserConfigController,
     updateConfigController,
     refreshKeyController
 };

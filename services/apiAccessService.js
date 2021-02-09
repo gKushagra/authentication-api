@@ -3,6 +3,7 @@ const dbDriver = require("mongoose");
 const SSOUser = dbDriver.model("SSOUsers");
 const ResetAuth = dbDriver.model("ResetAuth");
 const SSOUserConfig = dbDriver.model("SSOUserConfig");
+const Profile = dbDriver.model("Profiles");
 const mailer = require("nodemailer");
 
 async function connectDb() {
@@ -48,7 +49,7 @@ async function disconnectDb() {
 const registerService = async (req) => {
   const user = req.body;
 
-  if (req.externalUser) {
+  if (req.externalUser && req.user.db_host) {
     dbDriver.connect(`mongodb://${req.user.db_user}:${req.user.db_pwd}@${req.user.db_host}:${req.user.db_port}/${req.user.db_database}`, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
@@ -107,7 +108,7 @@ const registerService = async (req) => {
 const loginService = async (req) => {
   const user = req.body;
 
-  if (req.externalUser) {
+  if (req.externalUser && req.user.db_host) {
     dbDriver.connect(`mongodb://${req.user.db_user}:${req.user.db_pwd}@${req.user.db_host}:${req.user.db_port}/${req.user.db_database}`, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
@@ -161,7 +162,7 @@ const resetService = async (req) => {
   const userEmail = req.body.email;
   console.log(userEmail);
 
-  if (req.externalUser) {
+  if (req.externalUser && req.user.db_host) {
     dbDriver.connect(`mongodb://${req.user.db_user}:${req.user.db_pwd}@${req.user.db_host}:${req.user.db_port}/${req.user.db_database}`, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
@@ -258,7 +259,7 @@ const validateResetService = async (req) => {
   const uid = req.params.token;
   console.log(uid);
 
-  if (req.externalUser) {
+  if (req.externalUser && req.user.db_host) {
     dbDriver.connect(`mongodb://${req.user.db_user}:${req.user.db_pwd}@${req.user.db_host}:${req.user.db_port}/${req.user.db_database}`, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
@@ -340,7 +341,111 @@ const validateResetService = async (req) => {
   return { message: "password reset successfully" };
 };
 
-const initialSetupService = async (req) => { };
+/**
+ * [NOT TESTED]
+ * 
+ * @param {*} req 
+ */
+const initialSetupService = async (req) => {
+  // set api key and redirect url
+  const data = req.body;
+
+  await connectDb();
+
+  // get user email from db
+  try {
+    var user = await Profile.findOne({ _id: req._id });
+  } catch (error) {
+    console.log(error);
+    await disconnectDb();
+    throw new Error(error);
+  }
+
+  console.log(user);
+
+  var newSSOUserConfig = new SSOUserConfig({
+    email: null,
+    api_key: null,
+    db_host: null,
+    db_port: null,
+    db_user: null,
+    db_pwd: null,
+    db_database: null,
+    redirect_url: null,
+  });
+
+  newSSOUserConfig.setAPIKey(user.email);
+
+  newSSOUserConfig.setRedirectUrl(data.redirect_url);
+
+  if (data.db_host) {
+    newSSOUserConfig.setDbConfig({
+      db_host: data.db_host,
+      db_port: data.db_port,
+      db_user: data.db_user,
+      db_pwd: data.db_pwd,
+      db_database: data.db_database,
+    });
+  }
+
+  console.log(newSSOUserConfig);
+
+  try {
+    await newSSOUserConfig.save();
+  } catch (error) {
+    console.log(error);
+    await disconnectDb();
+    throw new Error(error);
+  }
+
+  await disconnectDb();
+
+  return {
+    message: "Success",
+    api_key: newSSOUserConfig.api_key,
+    redirect_url: newSSOUserConfig.redirect_url,
+    db_config: null
+  }
+};
+
+/**
+ * [NOT TESTED]
+ * 
+ * @param {*} req 
+ */
+const getUserConfigService = async (req) => {
+
+  await connectDb();
+
+  try {
+    var user = await Profile.findOne({ _id: req._id });
+  } catch (error) {
+    console.log(error);
+    await disconnectDb();
+    throw new Error(error);
+  }
+
+  console.log(user);
+
+  try {
+    var config = await SSOUserConfig.findOne({ email: user.email });
+  } catch (error) {
+    console.log(error);
+    await disconnectDb();
+    throw new Error(error);
+  }
+
+  console.log(config);
+
+  await disconnectDb();
+
+  return {
+    message: "Success",
+    api_key: config.api_key,
+    redirect_url: config.redirect_url,
+    db_config: null
+  }
+}
 
 const updateConfigService = async (req) => { };
 
@@ -352,6 +457,7 @@ module.exports = {
   resetService,
   validateResetService,
   initialSetupService,
+  getUserConfigService,
   updateConfigService,
   refreshKeyService,
 };

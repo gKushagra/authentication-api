@@ -12,7 +12,8 @@ const SSOUserConfigSchema = new Schema({
     db_port: Number,
     db_user: String,
     db_pwd: String,
-    db_database: String
+    db_database: String,
+    redirect_url: String,
 });
 
 SSOUserConfigSchema.methods.setAPIKey = function (email) {
@@ -21,6 +22,8 @@ SSOUserConfigSchema.methods.setAPIKey = function (email) {
 }
 
 SSOUserConfigSchema.methods.setDbConfig = function (dbConfig) {
+    if (!dbConfig.db_host) return;
+
     var pass = CryptoJS.AES.encrypt(dbConfig.pass, process.env.TOKEN_SKT).toString();
 
     this.db_host = dbConfig.host;
@@ -28,6 +31,10 @@ SSOUserConfigSchema.methods.setDbConfig = function (dbConfig) {
     this.db_user = dbConfig.user;
     this.db_pwd = pass;
     this.db_database = dbConfig.db;
+}
+
+SSOUserConfigSchema.methods.setRedirectUrl = function (url) {
+    this.redirect_url = url;
 }
 
 SSOUserConfigSchema.methods.getDbPass = function (pass) {
