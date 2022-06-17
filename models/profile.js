@@ -5,7 +5,8 @@ const { Schema } = mongoose;
 const ProfileSchema = new Schema({
   _id: String,
   name: String,
-  email: String
+  email: String,
+  username: String
 });
 
 mongoose.model("Profiles", ProfileSchema);

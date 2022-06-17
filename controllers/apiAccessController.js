@@ -44,6 +44,7 @@ const validateResetController = async (req, res, next) => {
         let data = await validateResetService(req);
         res.status(200).json(data);
     } catch (error) {
+        console.log(error);
         res.sendStatus(500);
     }
 }

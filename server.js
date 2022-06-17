@@ -8,7 +8,7 @@ const app = express();
 
 // for integration test
 app.get("/test", function (req, res) {
-  res.send('Hi! You have called OddFellow SSO REST API Test endpoint. <a href="https://sso.oddfellow.in">Visit Website</a>');
+  res.send('Hey there! You are at Softwright Single-Sign On - API Status Page. <a href="https://sso.softwright.in">Visit Website</a>');
 });
 
 // configure app
@@ -29,7 +29,7 @@ const userRoutes = require("./routes/userRoutes");
 app.use("/v1", apiAccessRoutes);
 app.use("/v1/user", userRoutes);
 
-const PORT = process.env.TEST_PORT || 2048;
+const PORT = process.env.PORT || 2048;
 
 app.listen(PORT, () => {
   console.log(`api running on port ${PORT}`);

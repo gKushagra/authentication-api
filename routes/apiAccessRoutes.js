@@ -17,35 +17,24 @@ const {
 } = require("./../controllers/apiAccessController");
 
 /**
- *  Application API Endpoints
+ *  API accessible from SSO
  */
-router.post('/api/login', loginController);
+router.post('/api/login', loginController);                                 // #TESTED
+router.post('/api/register', registerController);                           // #TESTED
+router.post('/api/reset', resetController);                                 // #NOT-TESTED
+router.post('/api/reset/:token', validateResetController);                  // #NOT-TESTED
+router.get('/api/login/refresh-token', checkAuth, refreshKeyController);    // #NOT-TESTED
 
-router.post('/api/register', registerController);
-
-router.post('/api/reset', resetController);
-
-router.post('/api/reset/:token', validateResetController);
-
-
-router.get('/config', checkAuth, getUserConfigController);
-
-router.post('/config', checkAuth, initialSetupController);
-
-router.put('/config', checkAuth, updateConfigController);
-
-
-router.get('/refresh/:token', checkAuth, refreshKeyController);
+// router.get('/config', checkAuth, getUserConfigController);
+// router.post('/config', checkAuth, initialSetupController);
+// router.put('/config', checkAuth, updateConfigController);
 
 /**
- *  Public Access API Endpoints
+ *  Client specific API : Don't remember the Use Case
  */
-router.post('/login', validateKey, loginController);
-
-router.post('/register', validateKey, registerController);
-
-router.post('/reset', validateKey, resetController);
-
-router.post('/reset/:token', validateKey, validateResetController);
+// router.post('/login', validateKey, loginController);
+// router.post('/register', validateKey, registerController);
+// router.post('/reset', validateKey, resetController);
+// router.post('/reset/:token', validateKey, validateResetController);
 
 module.exports = router;
