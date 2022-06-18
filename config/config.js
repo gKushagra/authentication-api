@@ -30,4 +30,6 @@ config["dbOptions"] = {
     useFindAndModify: false,
 };
 
+config["emailApi"] = process.env.EMAIL_API;
+
 module.exports = config;

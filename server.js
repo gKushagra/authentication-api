@@ -26,7 +26,7 @@ require("./models/profile");
 const apiAccessRoutes = require("./routes/apiAccessRoutes");
 const userRoutes = require("./routes/userRoutes");
 
-app.use("/v1", apiAccessRoutes);
+app.use("/v1/api", apiAccessRoutes);
 app.use("/v1/user", userRoutes);
 
 const PORT = process.env.PORT || 2048;

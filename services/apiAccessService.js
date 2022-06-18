@@ -133,7 +133,7 @@ const loginService = async (req) => {
 };
 
 /**
- * [NOT TESTED]
+ * [TESTED]
  *
  * @param {*} req
  *
@@ -182,20 +182,27 @@ const resetService = async (req) => {
     console.log(`Error creating html template ${uid}`);
     throw new Error(`Error creating html template - no uid ${uid}`);
   }
+  // console.log(url);
   const html = await extensions.getPasswordResetEmailHtml(url);
 
-  await emailService.sendEmail({
+  // await emailService.sendEmail({
+  //   to: userEmail,
+  //   subject: "Softwright Single Sign-On Password Reset Request",
+  //   text: url,
+  //   html
+  // });
+  await emailService.sendEmailSendgrid({
     to: userEmail,
     subject: "Softwright Single Sign-On Password Reset Request",
     text: url,
     html
-  })
+  });
 
   return { message: "reset link sent" };
 };
 
 /**
- *  [NOT TESTED]
+ *  [TESTED]
  *
  * @param {*} req
  *
@@ -242,9 +249,15 @@ const validateResetService = async (req) => {
 
   await disconnectDb();
 
-  const html = extensions.getPasswordResetSuccessEmailHtml();
+  const html = await extensions.getPasswordResetSuccessEmailHtml();
 
-  await emailService.sendEmail({
+  // await emailService.sendEmail({
+  //   to: _matchingUid.email,
+  //   subject: "Softwright Single Sign-On Password Reset Request",
+  //   text: "Your account password has been reset successfully!",
+  //   html
+  // });
+  await emailService.sendEmailSendgrid({
     to: _matchingUid.email,
     subject: "Softwright Single Sign-On Password Reset Request",
     text: "Your account password has been reset successfully!",
