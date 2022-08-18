@@ -18,7 +18,8 @@ app.use(bodyParser.json());
 
 // import data models
 require("./models/ssoUser");
-require("./models/ssoUserConfig");
+require("./models/clientDatabase");
+require("./models/clientConfig");
 require("./models/resetAuth");
 require("./models/profile");
 

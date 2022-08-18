@@ -6,7 +6,9 @@ const emailService = require("../services/emailService");
 
 const SSOUser = dbDriver.model("SSOUsers");
 const ResetAuth = dbDriver.model("ResetAuth");
-const SSOUserConfig = dbDriver.model("SSOUserConfig");
+const DatabaseSetting = dbDriver.model("DatabaseSetting");
+const ClientConfig = dbDriver.model("ClientConfig");
+const ClientApplication = dbDriver.model("ClientApplication");
 const Profile = dbDriver.model("Profiles");
 
 async function connectDb() {
@@ -272,52 +274,52 @@ const validateResetService = async (req) => {
  * 
  * @param {*} req 
  */
-const initialSetupService = async (req) => {
-  // set api key and redirect url
+const addClientConfigService = async (req) => {
   const data = req.body;
 
   await connectDb();
 
-  // get user email from db
+  // check if client already exists
   try {
-    var user = await Profile.findOne({ _id: req._id });
+    var clientConfig = await ClientConfig.findOne({ email: data.email });
   } catch (error) {
     console.log(error);
     await disconnectDb();
     throw new Error(error);
   }
 
-  console.log(user);
-
-  var newSSOUserConfig = new SSOUserConfig({
-    email: null,
-    api_key: null,
-    db_host: null,
-    db_port: null,
-    db_user: null,
-    db_pwd: null,
-    db_database: null,
-    redirect_url: null,
-  });
-
-  newSSOUserConfig.setAPIKey(user.email);
-
-  newSSOUserConfig.setRedirectUrl(data.redirect_url);
-
-  if (data.db_host) {
-    newSSOUserConfig.setDbConfig({
-      db_host: data.db_host,
-      db_port: data.db_port,
-      db_user: data.db_user,
-      db_pwd: data.db_pwd,
-      db_database: data.db_database,
-    });
+  console.log(clientConfig);
+  if (clientConfig._id) {
+    return "client already exists";
   }
 
-  console.log(newSSOUserConfig);
+  // add new client
+  var newClientConfig = new ClientConfig({
+    email: data.email,
+    api_key: null,
+    api_secret: null,
+    db_setting: null,
+    applications: []
+  });
+
+  newClientConfig.setAPIKey(data.email);
+
+  if (data.db_setting) {
+    var newDatabaseSetting = new DatabaseSetting({
+      host: data.db_setting.host,
+      port: data.db_setting.host,
+      user: data.db_setting.host,
+      pass: null,
+      database: data.db_setting.host,
+      auth_source: data.db_setting.host
+    });
+
+    newDatabaseSetting.encryptDatabasePass(data.db_setting.pass);
+    newClientConfig.setDatabaseSetting(newDatabaseSetting);
+  }
 
   try {
-    await newSSOUserConfig.save();
+    await newClientConfig.save();
   } catch (error) {
     console.log(error);
     await disconnectDb();
@@ -327,10 +329,8 @@ const initialSetupService = async (req) => {
   await disconnectDb();
 
   return {
-    message: "Success",
-    api_key: newSSOUserConfig.api_key,
-    redirect_url: newSSOUserConfig.redirect_url,
-    db_config: null
+    message: "successfully created client",
+    data: newClientConfig
   }
 };
 
@@ -339,7 +339,7 @@ const initialSetupService = async (req) => {
  * 
  * @param {*} req 
  */
-const getUserConfigService = async (req) => {
+const getClientConfigService = async (req) => {
 
   await connectDb();
 
@@ -373,7 +373,7 @@ const getUserConfigService = async (req) => {
   }
 }
 
-const updateConfigService = async (req) => { };
+const updateClientConfigService = async (req) => { };
 
 const refreshKeyService = async (req) => { };
 
@@ -395,8 +395,8 @@ module.exports = {
   loginService,
   resetService,
   validateResetService,
-  initialSetupService,
-  getUserConfigService,
-  updateConfigService,
+  addClientConfigService,
+  getClientConfigService,
+  updateClientConfigService,
   refreshKeyService,
 };

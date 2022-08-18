@@ -49,7 +49,7 @@ const validateResetController = async (req, res, next) => {
     }
 }
 
-const initialSetupController = async (req, res, next) => {
+const addClientConfigController = async (req, res, next) => {
     try {
         let data = await initialSetupService(req);
         res.status(200).json(data);
@@ -58,7 +58,7 @@ const initialSetupController = async (req, res, next) => {
     }
 }
 
-const getUserConfigController = async (req, res, next) => {
+const getClientConfigController = async (req, res, next) => {
     try {
         let data = await getUserConfigService(req);
         res.status(200).json(data);
@@ -67,7 +67,7 @@ const getUserConfigController = async (req, res, next) => {
     }
 }
 
-const updateConfigController = async (req, res, next) => {
+const updateClientConfigController = async (req, res, next) => {
     try {
         let data = await updateConfigService(req);
         res.status(200).json(data);
@@ -90,8 +90,8 @@ module.exports = {
     loginController,
     resetController,
     validateResetController,
-    initialSetupController,
-    getUserConfigController,
-    updateConfigController,
+    addClientConfigController,
+    getClientConfigController,
+    updateClientConfigController,
     refreshKeyController
 };

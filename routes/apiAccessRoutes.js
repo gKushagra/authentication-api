@@ -23,10 +23,10 @@ const {
     loginController,
     resetController,
     validateResetController,
-    initialSetupController,
-    updateConfigController,
+    addClientConfigController,
+    updateClientConfigController,
     refreshKeyController,
-    getUserConfigController
+    getClientConfigController
 } = require("./../controllers/apiAccessController");
 
 /**
@@ -41,9 +41,10 @@ router.get('/login/refresh-token', checkAuth, refreshKeyController);    /** @NOT
 /**
  *  @IN_DEVELOPMENT API accessible to 
  */
-router.post('/client/config', checkAuth, initialSetupController);       /** @NOT_TESTED */
-router.get('/client/config', checkAuth, getUserConfigController);       /** @NOT_TESTED */
-router.put('/client/config', checkAuth, updateConfigController);        /** @NOT_TESTED */
+
+router.post('/client', checkAuth, addClientConfigController);               /** @NOT_TESTED */
+router.get('/client', checkAuth, getClientConfigController);                /** @NOT_TESTED */
+router.put('/client/:resource', checkAuth, updateClientConfigController);   /** @NOT_TESTED */
 
 /**
  *  @UPCOMING API accessible to SSO Client with custom deployment

@@ -2,7 +2,7 @@ require('dotenv').config();
 const config = require('../config/config');
 const dbDriver = require('mongoose');
 
-const SSOUserConfig = dbDriver.model("SSOUserConfig");
+const ClientConfig = dbDriver.model("ClientConfig");
 
 const validateKey = async (req, res, next) => {
     const {
@@ -15,7 +15,7 @@ const validateKey = async (req, res, next) => {
             .then(() => console.log('db connected'));
 
         try {
-            var client = await SSOUserConfig.findOne({ api_key: authorization.split(" ")[1] });
+            var client = await ClientConfig.findOne({ _id: authorization.split(" ")[1] });
         } catch (error) {
             console.log(error);
             res.sendStatus(500);
