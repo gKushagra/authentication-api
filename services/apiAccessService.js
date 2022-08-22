@@ -1,18 +1,19 @@
 require("dotenv").config();
 const dbDriver = require("mongoose");
+const config = require("../config/config");
+const extensions = require("../helpers/transformations");
+const emailService = require("../services/emailService");
+
 const SSOUser = dbDriver.model("SSOUsers");
 const ResetAuth = dbDriver.model("ResetAuth");
-const SSOUserConfig = dbDriver.model("SSOUserConfig");
-const mailer = require("nodemailer");
+const DatabaseSetting = dbDriver.model("DatabaseSetting");
+const ClientConfig = dbDriver.model("ClientConfig");
+const ClientApplication = dbDriver.model("ClientApplication");
+const Profile = dbDriver.model("Profiles");
 
 async function connectDb() {
   try {
-    dbDriver.connect(`${process.env.CENTRAL_STORE_HOST}`, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      useFindAndModify: false,
-    });
-
+    dbDriver.connect(config.dbConnectionString, config.dbOptions);
     console.log("db connected");
   } catch (error) {
     console.log("db connection error");
@@ -23,7 +24,6 @@ async function connectDb() {
 async function disconnectDb() {
   try {
     dbDriver.disconnect();
-
     console.log("db dis-connected");
   } catch (error) {
     console.log("db dis-connection error");
@@ -48,15 +48,7 @@ async function disconnectDb() {
 const registerService = async (req) => {
   const user = req.body;
 
-  if (req.externalUser) {
-    dbDriver.connect(`mongodb://${req.user.db_user}:${req.user.db_pwd}@${req.user.db_host}:${req.user.db_port}/${req.user.db_database}`, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      useFindAndModify: false,
-    })
-  } else {
-    await connectDb();
-  }
+  await checkIsClient(req);
 
   try {
     var emailExists = await SSOUser.exists({ email: user.email });
@@ -107,15 +99,7 @@ const registerService = async (req) => {
 const loginService = async (req) => {
   const user = req.body;
 
-  if (req.externalUser) {
-    dbDriver.connect(`mongodb://${req.user.db_user}:${req.user.db_pwd}@${req.user.db_host}:${req.user.db_port}/${req.user.db_database}`, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      useFindAndModify: false,
-    })
-  } else {
-    await connectDb();
-  }
+  await checkIsClient(req);
 
   try {
     var _userFound = await SSOUser.findOne({ email: user.email });
@@ -161,15 +145,7 @@ const resetService = async (req) => {
   const userEmail = req.body.email;
   console.log(userEmail);
 
-  if (req.externalUser) {
-    dbDriver.connect(`mongodb://${req.user.db_user}:${req.user.db_pwd}@${req.user.db_host}:${req.user.db_port}/${req.user.db_database}`, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      useFindAndModify: false,
-    })
-  } else {
-    await connectDb();
-  }
+  await checkIsClient(req);
 
   // check if acc with this email exists?
   try {
@@ -184,14 +160,11 @@ const resetService = async (req) => {
 
   if (!_userExists) {
     await disconnectDb();
-
     return { message: "user not found" };
   }
 
   const _newResetReq = new ResetAuth({ email: userEmail, uid: null });
-
   const uid = _newResetReq.setResetRequest(userEmail);
-
   console.log(_newResetReq);
 
   // save
@@ -200,49 +173,32 @@ const resetService = async (req) => {
   } catch (error) {
     await disconnectDb();
     console.log(error);
-    throw new Error();
+    throw new Error(error);
   }
 
   await disconnectDb();
 
-  //   send mail
-  let transporter = await mailer.createTransport({
-    host: process.env.EHOST,
-    port: process.env.EPORT,
-    secure: false,
-    auth: {
-      user: process.env.EUSER,
-      pass: process.env.EPASS,
-    },
-  });
-
-  const resetAddr = process.env.RESET_URL;
-  const url = new URL(resetAddr);
-  url.searchParams.append("token", uid);
-
-  try {
-    let info = await transporter.sendMail({
-      from: "oddfellow-sso@deltasaas.tech",
-      to: `${userEmail}`,
-      subject: "Password Reset Request From OddFellow SSO",
-      text: `${url}`,
-      html: `
-      <p>Hello User!</p>
-      <br>
-      <br>
-      <a href="${url}">Click to reset your password</a>
-      <br>
-      <br>
-      <p>Best,<p>
-      <p>OddFellow Single Sign On (SSO) Team</p>
-      <br>
-      <small>If you did not initiate this request, report at <b>oddfellow-sso@deltasaas.tech</b></small> 
-      `,
-    });
-  } catch (error) {
-    console.log(error);
-    throw new Error(error);
+  // send mail
+  const url = await extensions.getPasswordResetUrl(uid);
+  if (!url) {
+    console.log(`Error creating html template ${uid}`);
+    throw new Error(`Error creating html template - no uid ${uid}`);
   }
+  // console.log(url);
+  const html = await extensions.getPasswordResetEmailHtml(url);
+
+  // await emailService.sendEmail({
+  //   to: userEmail,
+  //   subject: "Softwright Single Sign-On Password Reset Request",
+  //   text: url,
+  //   html
+  // });
+  await emailService.sendEmailSendgrid({
+    to: userEmail,
+    subject: "Softwright Single Sign-On Password Reset Request",
+    text: url,
+    html
+  });
 
   return { message: "reset link sent" };
 };
@@ -258,15 +214,7 @@ const validateResetService = async (req) => {
   const uid = req.params.token;
   console.log(uid);
 
-  if (req.externalUser) {
-    dbDriver.connect(`mongodb://${req.user.db_user}:${req.user.db_pwd}@${req.user.db_host}:${req.user.db_port}/${req.user.db_database}`, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      useFindAndModify: false,
-    })
-  } else {
-    await connectDb();
-  }
+  await checkIsClient(req);
 
   try {
     var _matchingUid = await ResetAuth.findOne({ uid: uid });
@@ -303,55 +251,152 @@ const validateResetService = async (req) => {
 
   await disconnectDb();
 
-  let transporter = await mailer.createTransport({
-    host: process.env.EHOST,
-    port: process.env.EPORT,
-    secure: false,
-    auth: {
-      user: process.env.EUSER,
-      pass: process.env.EPASS,
-    },
-  });
+  const html = await extensions.getPasswordResetSuccessEmailHtml();
 
-  try {
-    let info = await transporter.sendMail({
-      from: "oddfellow-sso@deltasaas.tech",
-      to: `${_matchingUid.email}`,
-      subject: "Password Reset Success",
-      text: "Your account password as been reset successfully!",
-      html: `
-          <p>Hello User!</p>
-          <br>
-          <br>
-          <p>Your account password as been reset successfully!</p>
-          <br>
-          <br>
-          <p>Best,<p>
-          <p>OddFellow Single Sign On (SSO) Team</p>
-          <br>
-          <small>If you did not initiate this request, report at <b>oddfellow-sso@deltasaas.tech</b></small> 
-          `,
-    });
-  } catch (error) {
-    console.log(error);
-    throw new Error(error);
-  }
+  // await emailService.sendEmail({
+  //   to: _matchingUid.email,
+  //   subject: "Softwright Single Sign-On Password Reset Request",
+  //   text: "Your account password has been reset successfully!",
+  //   html
+  // });
+  await emailService.sendEmailSendgrid({
+    to: _matchingUid.email,
+    subject: "Softwright Single Sign-On Password Reset Request",
+    text: "Your account password has been reset successfully!",
+    html
+  });
 
   return { message: "password reset successfully" };
 };
 
-const initialSetupService = async (req) => { };
+/**
+ * [NOT TESTED]
+ * 
+ * @param {*} req 
+ */
+const addClientConfigService = async (req) => {
+  const data = req.body;
 
-const updateConfigService = async (req) => { };
+  await connectDb();
+
+  // check if client already exists
+  try {
+    var clientConfig = await ClientConfig.findOne({ email: data.email });
+  } catch (error) {
+    console.log(error);
+    await disconnectDb();
+    throw new Error(error);
+  }
+
+  console.log(clientConfig);
+  if (clientConfig._id) {
+    return "client already exists";
+  }
+
+  // add new client
+  var newClientConfig = new ClientConfig({
+    email: data.email,
+    api_key: null,
+    api_secret: null,
+    db_setting: null,
+    applications: []
+  });
+
+  newClientConfig.setAPIKey(data.email);
+
+  if (data.db_setting) {
+    var newDatabaseSetting = new DatabaseSetting({
+      host: data.db_setting.host,
+      port: data.db_setting.host,
+      user: data.db_setting.host,
+      pass: null,
+      database: data.db_setting.host,
+      auth_source: data.db_setting.host
+    });
+
+    newDatabaseSetting.encryptDatabasePass(data.db_setting.pass);
+    newClientConfig.setDatabaseSetting(newDatabaseSetting);
+  }
+
+  try {
+    await newClientConfig.save();
+  } catch (error) {
+    console.log(error);
+    await disconnectDb();
+    throw new Error(error);
+  }
+
+  await disconnectDb();
+
+  return {
+    message: "successfully created client",
+    data: newClientConfig
+  }
+};
+
+/**
+ * [NOT TESTED]
+ * 
+ * @param {*} req 
+ */
+const getClientConfigService = async (req) => {
+
+  await connectDb();
+
+  try {
+    var user = await Profile.findOne({ _id: req._id });
+  } catch (error) {
+    console.log(error);
+    await disconnectDb();
+    throw new Error(error);
+  }
+
+  console.log(user);
+
+  try {
+    var config = await SSOUserConfig.findOne({ email: user.email });
+  } catch (error) {
+    console.log(error);
+    await disconnectDb();
+    throw new Error(error);
+  }
+
+  console.log(config);
+
+  await disconnectDb();
+
+  return {
+    message: "Success",
+    api_key: config.api_key,
+    redirect_url: config.redirect_url,
+    db_config: null
+  }
+}
+
+const updateClientConfigService = async (req) => { };
 
 const refreshKeyService = async (req) => { };
+
+const checkIsClient = async (req) => {
+  if (req.isClient) {
+    console.log(`trying to connect to client db`);
+    dbDriver.connect(
+      await extensions.generateMongoUri(req.client.env),
+      config.dbOptions
+    );
+    console.log(`client ${req.client._id} db connected`);
+  } else {
+    await connectDb();
+  }
+}
 
 module.exports = {
   registerService,
   loginService,
   resetService,
   validateResetService,
-  initialSetupService,
-  updateConfigService,
+  addClientConfigService,
+  getClientConfigService,
+  updateClientConfigService,
   refreshKeyService,
 };
