@@ -4,10 +4,10 @@ const path = require('path');
 const logger = winston.createLogger({
     levels: winston.config.npm.levels,
     format: winston.format.json(),
-    defaultMeta: { service: 'email-service' },
+    defaultMeta: { service: 'oauth-api' },
     transports: [
         new winston.transports.File({
-            filename: path.join(__dirname + '../logs/logs.json')
+            filename: path.join(__dirname + '/../logs/logs.json')
         })
     ]
 });

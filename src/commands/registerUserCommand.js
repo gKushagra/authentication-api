@@ -32,8 +32,10 @@ const registerUserCommand = async (user) => {
     }
 
     logger.info(`${getDate().getUTCDate()}:: registerUserCommand creating user object`);
-    const newUser = new User(user);
-    newUser.setPassword(user.password);
+    const newUser = new User();
+    const hash = await newUser.getHash(user.password);
+    newUser.email = user.email;
+    newUser.password = hash;
 
     try {
         logger.info(`${getDate().getUTCDate()}:: registerUserCommand inserting doc`);

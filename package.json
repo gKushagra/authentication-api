@@ -5,8 +5,8 @@
   "main": "app.js",
   "scripts": {
     "test": "./node_modules/.bin/mocha --exit ./test/test.js",
-    "start": "node app.js",
-    "dev": "nodemon app.js",
+    "start": "node ./src/app.js",
+    "dev": "nodemon ./src/app.js",
     "build": "webpack"
   },
   "author": "Kushagra Gupta <dev.gkushagra@gmail.com>",

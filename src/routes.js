@@ -3,8 +3,8 @@
  * @lastUpdated Fri Nov 18 20:48
  */
 const express = require('express');
-const checkAuth = require('./middlewares/checkAuth');
-const validateKey = require('./middlewares/validateKey');
+// const checkAuth = require('./middlewares/checkAuth');
+// const validateKey = require('./middlewares/validateKey');
 
 const router = express.Router();
 

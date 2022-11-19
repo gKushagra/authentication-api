@@ -31,15 +31,17 @@ const loginUserCommand = async (user) => {
         logger.info(`${getDate().getUTCDate()}:: loginUserCommand user found`);
 
         const existingUser = new User(result);
-        const validPassword = existingUser.validatePassword(
+        const validPassword = await existingUser.validatePassword(
             user.password,
             existingUser.password
         );
 
         if (validPassword) {
+            logger.info(`${getDate().getUTCDate()}:: loginUserCommand login success`);
             const token = existingUser.getToken();
             return { message: "authorized", token }
         } else {
+            logger.info(`${getDate().getUTCDate()}:: loginUserCommand invalid password`);
             return { message: "unauthorized" }
         }
     } else {

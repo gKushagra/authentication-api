@@ -10,14 +10,14 @@ const UserSchema = new Schema({
     password: String
 });
 
-UserSchema.methods.setPassword = (unencryptedPassword) => {
-    const salt = bcrypt.genSaltSync(10);
-    const hash = bcrypt.hashSync(unencryptedPassword, salt);
-    this.password = hash;
+UserSchema.methods.getHash = async (unencryptedPassword) => {
+    const salt = await bcrypt.genSalt(10);
+    const hash = await bcrypt.hash(unencryptedPassword, salt);
+    return hash;
 }
 
-UserSchema.methods.validatePassword = (unencryptedPassword, hash) => {
-    return bcrypt.compareSync(unencryptedPassword, hash);
+UserSchema.methods.validatePassword = async (unencryptedPassword, hash) => {
+    return await bcrypt.compare(unencryptedPassword, hash);
 }
 
 UserSchema.methods.getToken = () => {

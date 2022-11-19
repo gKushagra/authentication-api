@@ -16,5 +16,5 @@ const routes = require("./routes");
 app.use("/api/v1", routes);
 
 app.listen(config.port || 2048, () => {
-  console.log(`OAuth service running on port: ${PORT}`);
+  console.log(`OAuth service running on port: ${config.port || 2048}`);
 });
