@@ -8,14 +8,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cors());
 
-// require("./models/ssoUser");
-// require("./models/clientDatabase");
-// require("./models/clientConfig");
-// require("./models/resetAuth");
-// require("./models/profile");
+require("./models/User");
+require("./models/Organization");
+require("./models/ResetAuth");
 
 const routes = require("./routes");
-app.use("/api/v1")
+app.use("/api/v1", routes);
 
 app.listen(config.port || 2048, () => {
   console.log(`OAuth service running on port: ${PORT}`);
