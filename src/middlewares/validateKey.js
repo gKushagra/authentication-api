@@ -1,5 +1,5 @@
 require('dotenv').config();
-const config = require('../config/config');
+const config = require('../config');
 const dbDriver = require('mongoose');
 
 const ClientConfig = dbDriver.model("ClientConfig");

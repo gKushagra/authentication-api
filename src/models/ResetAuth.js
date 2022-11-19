@@ -1,23 +1,22 @@
-require("dotenv").config();
 const mongoose = require("mongoose");
-const { v4: uid } = require("uuid");
+const { v4: guid } = require("uuid");
 
 const { Schema } = mongoose;
 
 const ResetAuthSchema = new Schema({
   email: String,
-  uid: String,
+  id: String,
 });
 
 ResetAuthSchema.methods.setResetRequest = function (email) {
-  const _newUid = uid();
+  const id = guid();
   this.email = email;
-  this.uid = _newUid;
-  return _newUid;
+  this.id = id;
+  return id;
 };
 
-ResetAuthSchema.methods.validateResetRequest = function (cUid, sUid) {
-  return cUid === sUid;
+ResetAuthSchema.methods.validateResetRequest = function (idFromRequest, idFromDatabase) {
+  return idFromRequest === idFromDatabase;
 };
 
 mongoose.model("ResetAuth", ResetAuthSchema);

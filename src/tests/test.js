@@ -1,6 +1,6 @@
 const { describe } = require("mocha");
 var request = require("supertest");
-var app = require("./../server");
+var app = require("../server");
 
 describe("GET /test", function () {
   it("respond with welcome message", function (done) {

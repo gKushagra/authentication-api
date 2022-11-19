@@ -3,11 +3,8 @@ const {
     loginService,
     resetService,
     validateResetService,
-    initialSetupService,
-    updateConfigService,
     refreshKeyService,
-    getUserConfigService
-} = require("./../services/apiAccessService");
+} = require("../commands/authService");
 
 const registerController = async (req, res, next) => {
     try {
@@ -49,33 +46,6 @@ const validateResetController = async (req, res, next) => {
     }
 }
 
-const addClientConfigController = async (req, res, next) => {
-    try {
-        let data = await initialSetupService(req);
-        res.status(200).json(data);
-    } catch (error) {
-        res.sendStatus(500);
-    }
-}
-
-const getClientConfigController = async (req, res, next) => {
-    try {
-        let data = await getUserConfigService(req);
-        res.status(200).json(data);
-    } catch (error) {
-        res.sendStatus(500);
-    }
-}
-
-const updateClientConfigController = async (req, res, next) => {
-    try {
-        let data = await updateConfigService(req);
-        res.status(200).json(data);
-    } catch (error) {
-        res.sendStatus(500);
-    }
-}
-
 const refreshKeyController = async (req, res, next) => {
     try {
         let data = await refreshKeyService(req);
@@ -90,8 +60,5 @@ module.exports = {
     loginController,
     resetController,
     validateResetController,
-    addClientConfigController,
-    getClientConfigController,
-    updateClientConfigController,
     refreshKeyController
 };

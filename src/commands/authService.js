@@ -1,8 +1,8 @@
 require("dotenv").config();
 const dbDriver = require("mongoose");
-const config = require("../config/config");
-const extensions = require("../helpers/transformations");
-const emailService = require("../services/emailService");
+const config = require("../config");
+const extensions = require("../helperMethods");
+const emailService = require("./emailService");
 
 const SSOUser = dbDriver.model("SSOUsers");
 const ResetAuth = dbDriver.model("ResetAuth");
