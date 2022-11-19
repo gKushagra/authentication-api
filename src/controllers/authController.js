@@ -1,56 +1,54 @@
-const {
-    registerService,
-    loginService,
-    resetService,
-    validateResetService,
-    refreshKeyService,
-} = require("../commands/authService");
+const loginUserCommand = require("../commands/loginUserCommand");
+const registerUserCommand = require("../commands/registerUserCommand");
+const resetPasswordLinkCommand = require("../commands/resetPasswordLinkCommand");
+const resetPasswordCommand = require("../commands/resetPasswordCommand");
+const logger = require("../logger");
+const date = new Date();
 
-const registerController = async (req, res, next) => {
+const registerController = async (req, res) => {
     try {
-        let data = await registerService(req);
-        res.status(200).json(data);
+        logger.info(`${date.getUTCDate()}:: registerController called`);
+        let result = await registerUserCommand(req.body);
+        logger.info(`${date.getUTCDate()}:: registerController return`);
+        return res.status(200).json(result);
     } catch (error) {
-        console.log(error);
+        logger.error(`${date.getUTCDate()}:: registerController Error: ${error}`);
         res.sendStatus(500);
     }
 }
 
-const loginController = async (req, res, next) => {
+const loginController = async (req, res) => {
     try {
-        let data = await loginService(req);
-        res.status(200).json(data);
+        logger.info(`${date.getUTCDate()}:: loginController called`);
+        let result = await loginUserCommand(req.body);
+        logger.info(`${date.getUTCDate()}:: registerController return`);
+        res.status(200).json(result);
     } catch (error) {
-        console.log(error);
+        logger.error(`${date.getUTCDate()}:: loginController Error: ${error}`);
         res.sendStatus(500);
     }
 }
 
-const resetController = async (req, res, next) => {
+const resetLinkController = async (req, res) => {
     try {
-        let data = await resetService(req);
-        res.status(200).json(data);
+        logger.info(`${date.getUTCDate()}:: resetLinkController called`);
+        let result = await resetPasswordLinkCommand(req.body.email);
+        logger.info(`${date.getUTCDate()}:: resetLinkController return`);
+        res.status(200).json(result);
     } catch (error) {
-        console.log(error);
+        logger.error(`${date.getUTCDate()}:: resetLinkController Error: ${error}`);
         res.sendStatus(500);
     }
 }
 
-const validateResetController = async (req, res, next) => {
+const resetController = async (req, res) => {
     try {
-        let data = await validateResetService(req);
-        res.status(200).json(data);
+        logger.info(`${date.getUTCDate()}:: resetController called`);
+        let result = await resetPasswordCommand(req.body.password, req.params.token);
+        logger.info(`${date.getUTCDate()}:: resetController called`);
+        res.status(200).json(result);
     } catch (error) {
-        console.log(error);
-        res.sendStatus(500);
-    }
-}
-
-const refreshKeyController = async (req, res, next) => {
-    try {
-        let data = await refreshKeyService(req);
-        res.status(200).json(data);
-    } catch (error) {
+        logger.error(`${date.getUTCDate()}:: resetController Error: ${error}`);
         res.sendStatus(500);
     }
 }
@@ -58,7 +56,6 @@ const refreshKeyController = async (req, res, next) => {
 module.exports = {
     registerController,
     loginController,
-    resetController,
-    validateResetController,
-    refreshKeyController
+    resetLinkController,
+    resetController
 };

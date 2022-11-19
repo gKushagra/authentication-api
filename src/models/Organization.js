@@ -8,16 +8,21 @@ const OrganizationSchema = new Schema({
     email: String,
     redirectUrl: String,
     apiKey: String,
+    options: {
+        cookies: Boolean,
+        jsonWebToken: Boolean
+    },
     applications: Array
 });
 
 OrganizationSchema.methods.addOrganization = (
-    _ = { name, email, redirect_url }
+    _ = { name, email, redirect_url, options }
 ) => {
     this.name = _.name;
     this.email = _.email;
     this.redirectUrl = _.redirect_url;
     this.apiKey = guid();
+    this.options = options;
     this.applications = [];
 }
 
