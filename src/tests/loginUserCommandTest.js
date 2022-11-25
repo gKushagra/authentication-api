@@ -13,7 +13,7 @@ describe('loginUserCommand', () => {
             .request(app)
             .post(uri)
             .set('content-type', 'application/json')
-            .send({ username: '', password: '' })
+            .send({ email: '', password: '' })
             .end((err, res) => {
                 res.should.have.status(400);
                 if (err) {
@@ -26,7 +26,7 @@ describe('loginUserCommand', () => {
             .request(app)
             .post(uri)
             .set('content-type', 'application/json')
-            .send({ username: 'not-test', password: 'not-test' })
+            .send({ email: 'not-test@test.com', password: 'not-test' })
             .end((err, res) => {
                 res.should.have.status(400);
                 if (err) {
@@ -39,7 +39,7 @@ describe('loginUserCommand', () => {
             .request(app)
             .post(uri)
             .set('content-type', 'application/json')
-            .send({ username: 'test', password: 'not-test' })
+            .send({ email: 'test@test.com', password: 'not-test' })
             .end((err, res) => {
                 res.should.have.status(401);
                 if (err) {
@@ -52,7 +52,7 @@ describe('loginUserCommand', () => {
             .request(app)
             .post(uri)
             .set('content-type', 'application/json')
-            .send({ username: 'test', password: 'test' })
+            .send({ email: 'test@test.com', password: 'test' })
             .end((err, res) => {
                 if (err) {
                     done(err);

@@ -21,32 +21,24 @@ const loginController = async (req, res) => {
 }
 
 const resetLinkController = async (req, res) => {
-    try {
-        logger.info(`${date.getUTCDate()}:: resetLinkController called`);
-        let result = await resetPasswordLinkCommand(req.body.email);
-        logger.info(`${date.getUTCDate()}:: resetLinkController return`);
-        res.status(200).json(result);
-    } catch (error) {
-        logger.error(`${date.getUTCDate()}:: resetLinkController Error: ${error}`);
-        res.sendStatus(500);
-    }
+    logger.info(`${date.getUTCDate()}:: resetLinkController called`);
+    const result = unwrapResult(await resetPasswordLinkCommand(req.params.email));
+    logger.info(`${date.getUTCDate()}:: resetLinkController done`);
+    res.status(result.code).json(result.data);
 }
 
 const resetController = async (req, res) => {
-    try {
-        logger.info(`${date.getUTCDate()}:: resetController called`);
-        let result = await resetPasswordCommand(req.body.password, req.params.token);
-        logger.info(`${date.getUTCDate()}:: resetController called`);
-        res.status(200).json(result);
-    } catch (error) {
-        logger.error(`${date.getUTCDate()}:: resetController Error: ${error}`);
-        res.sendStatus(500);
-    }
+    logger.info(`${date.getUTCDate()}:: resetController called`);
+    const result = unwrapResult(await resetPasswordCommand(req.body.password, req.params.token));
+    logger.info(`${date.getUTCDate()}:: resetController done`);
+    res.status(result.code).json(result.data);
 }
 
-const authorizeController = async (req, res) => {
+const verifyAuthController = async (req, res) => {
     logger.info(`${date.getUTCDate()}:: authorizeController called`);
-    res.status(200).json({ msg: "authorized" });
+    const result = unwrapResult({ status: 200, data: {} })
+    logger.info(`${date.getUTCDate()}:: authorizeController done`);
+    res.status(result.code).json(result.data);
 }
 
 module.exports = {
@@ -54,5 +46,5 @@ module.exports = {
     loginController,
     resetLinkController,
     resetController,
-    authorizeController
+    verifyAuthController
 };

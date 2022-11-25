@@ -4,7 +4,7 @@
   "description": "REST API for Softwright OAuth app",
   "main": "app.js",
   "scripts": {
-    "test": "mocha --exit ./src/test/",
+    "test": "mocha --exit ./src/tests/",
     "start": "node ./src/app.js",
     "dev": "nodemon ./src/app.js",
     "build": "webpack"

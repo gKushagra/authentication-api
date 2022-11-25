@@ -1,6 +1,7 @@
-# OAuth API
+# Authentication REST API
 
-This project contains API fro Softwright OAuth solution.
+This project consists of Authentication related REST APIs (login, register, etc.) that can be
+added into any client app for implementing authentication.
 
 ## License
 

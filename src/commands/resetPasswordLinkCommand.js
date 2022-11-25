@@ -4,14 +4,18 @@ const {
     getDate,
     getPasswordResetUrl,
     getResetPasswordEmailHtml,
+    responseMessages,
 } = require('../helperMethods');
 const logger = require('../logger');
 const sendEmailCommand = require('./sendEmailCommand');
-
 const User = mongoose.model("User");
 const ResetAuth = mongoose.model("ResetAuth");
 
 const resetPasswordLinkCommand = async (email) => {
+    if (!email || email === '') {
+        return { status: responseMessages.badRequest, data: {} }
+    }
+
     logger.info(`${getDate().getUTCDate()}:: resetPasswordLinkCommand execute`);
 
     try {
@@ -20,7 +24,7 @@ const resetPasswordLinkCommand = async (email) => {
     } catch (error) {
         logger.error(`${getDate().getUTCDate()}:: resetPasswordLinkCommand Error: ${error}`);
         mongoose.disconnect()
-        throw new Error(error);
+        return { status: responseMessages.badRequest, data: {} }
     }
 
     try {
@@ -29,12 +33,12 @@ const resetPasswordLinkCommand = async (email) => {
     } catch (error) {
         logger.error(`${getDate().getUTCDate()}:: resetPasswordLinkCommand Error: ${error}`);
         mongoose.disconnect();
-        throw new Error(error);
+        return { status: responseMessages.serverError, data: {} }
     }
 
     if (!result) {
         mongoose.disconnect();
-        return { message: "user not found" }
+        return { status: responseMessages.ok, data: {} }
     }
 
     const newResetAuthReq = new ResetAuth({ email, id: null });
@@ -46,7 +50,7 @@ const resetPasswordLinkCommand = async (email) => {
     } catch (error) {
         logger.error(`${getDate().getUTCDate()}:: resetPasswordLinkCommand Error: ${error}`);
         mongoose.disconnect();
-        throw new Error(error);
+        return { status: responseMessages.serverError, data: {} }
     }
 
     mongoose.disconnect();
@@ -54,7 +58,7 @@ const resetPasswordLinkCommand = async (email) => {
     const url = getPasswordResetUrl(requestId);
     if (!url) {
         logger.error(`${getDate().getUTCDate()}:: resetPasswordLinkCommand empty url`);
-        throw new Error(error);
+        return { status: responseMessages.serverError, data: {} }
     }
 
     const html = getResetPasswordEmailHtml(url);
@@ -68,7 +72,7 @@ const resetPasswordLinkCommand = async (email) => {
 
     logger.info(`${getDate().getUTCDate()}:: resetPasswordLinkCommand password reset email sent`);
 
-    return { message: "reset link sent" }
+    return { status: responseMessages.ok, data: {} }
 }
 
 module.exports = resetPasswordLinkCommand;

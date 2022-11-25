@@ -4,16 +4,29 @@ chai.use(chaiHttp);
 const app = require('../app');
 const should = chai.should();
 const expect = chai.expect;
-const uri = '/api/v1/auth/register';
+const uri = '/api/v1/auth/reset/';
 
-describe('registerUserCommand', () => {
+describe('resetPasswordCommand', () => {
     beforeEach(() => { });
+    it('when requestId is missing it should return not found', async () => {
+        chai
+            .request(app)
+            .post(uri + ``)
+            .set('content-type', 'application/json')
+            .send({ password: 'test' })
+            .end((err, res) => {
+                res.should.have.status(404);
+                if (err) {
+                    console.log(err);
+                }
+            });
+    });
     it('when req body is invalid it should return bad request', async () => {
         chai
             .request(app)
-            .post(uri)
+            .post(uri + 'requestId')
             .set('content-type', 'application/json')
-            .send({ username: '', password: '' })
+            .send({ password: '' })
             .end((err, res) => {
                 res.should.have.status(400);
                 if (err) {
@@ -21,33 +34,16 @@ describe('registerUserCommand', () => {
                 }
             });
     });
-    it('when user already exists it should return a bad request', async () => {
+    it('when requestId and req body is valid it should return success', async () => {
         chai
             .request(app)
-            .post(uri)
+            .post(uri + 'requestId')
             .set('content-type', 'application/json')
-            .send({ username: 'test', password: 'test' })
+            .send({ password: 'test' })
             .end((err, res) => {
-                res.should.have.status(400);
+                res.should.have.status(200);
                 if (err) {
                     console.log(err);
-                }
-            });
-    });
-    it('when user is created successfully it should return success', async () => {
-        const randomString = (Math.random() + 1).toString(36).substring(7);
-        chai
-            .request(app)
-            .post(uri)
-            .set('content-type', 'application/json')
-            .send({ username: randomString, password: randomString })
-            .end((err, res) => {
-                if (err) {
-                    done(err);
-                } else {
-                    res.should.have.status(200);
-                    expect(res.body['token']).to.not.be.null;
-                    done();
                 }
             });
     });

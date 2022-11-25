@@ -5,8 +5,8 @@ const logger = require('../logger');
 const User = mongoose.model("User");
 
 const registerUserCommand = async (user) => {
-    if (!user || !user['username'] || !user['password']
-        || user['username'] === '' || user['password'] === '') {
+    if (!user || !user['email'] || !user['password']
+        || user['email'] === '' || user['password'] === '') {
         return { status: responseMessages.badRequest, data: {} }
     }
 
@@ -17,6 +17,7 @@ const registerUserCommand = async (user) => {
         mongoose.connect(config.mongoUri, config.mongoOptions);
     } catch (error) {
         logger.error(`${getDate().getUTCDate()}:: registerUserCommand Error: ${error}`);
+        mongoose.disconnect();
         return { status: responseMessages.serverError, data: {} }
     }
 

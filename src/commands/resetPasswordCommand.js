@@ -3,14 +3,18 @@ const config = require('../config');
 const {
     getDate,
     getResetPasswordSuccessEmailHtml,
+    responseMessages,
 } = require('../helperMethods');
 const logger = require('../logger');
 const sendEmailCommand = require('./sendEmailCommand');
-
 const User = mongoose.model("User");
 const ResetAuth = mongoose.model("ResetAuth");
 
 const resetPasswordCommand = async (password, requestId) => {
+    if (!password || password === '' || !requestId || requestId === '') {
+        return { status: responseMessages.badRequest, data: {} }
+    }
+
     logger.info(`${getDate().getUTCDate()}:: resetPasswordCommand execute`);
 
     try {
@@ -19,7 +23,7 @@ const resetPasswordCommand = async (password, requestId) => {
     } catch (error) {
         logger.error(`${getDate().getUTCDate()}:: resetPasswordCommand Error: ${error}`);
         mongoose.disconnect();
-        throw new Error(error);
+        return { status: responseMessages.serverError, data: {} }
     }
 
     try {
@@ -28,12 +32,12 @@ const resetPasswordCommand = async (password, requestId) => {
     } catch (error) {
         logger.error(`${getDate().getUTCDate()}:: resetPasswordCommand Error: ${error}`);
         mongoose.disconnect()
-        throw new Error(error);
+        return { status: responseMessages.serverError, data: {} }
     }
 
     if (!result) {
         mongoose.disconnect();
-        return { message: "invalid reset request" }
+        return { status: responseMessages.badRequest, data: {} }
     }
 
     const updatedUser = new User({ email: result.email, password });
@@ -48,7 +52,7 @@ const resetPasswordCommand = async (password, requestId) => {
     } catch (error) {
         logger.error(`${getDate().getUTCDate()}:: resetPasswordCommand Error: ${error}`);
         mongoose.disconnect()
-        throw new Error(error);
+        return { status: responseMessages.serverError, data: {} }
     }
 
     mongoose.disconnect();
@@ -64,7 +68,7 @@ const resetPasswordCommand = async (password, requestId) => {
 
     logger.info(`${getDate().getUTCDate()}:: resetPasswordCommand password reset success email sent`);
 
-    return { message: "password reset successfully" }
+    return { status: responseMessages.ok, data: {} }
 }
 
 module.exports = resetPasswordCommand;

@@ -11,14 +11,14 @@ const {
     loginController,
     resetLinkController,
     resetController,
-    authorizeController,
+    verifyAuthController,
 } = require("./controllers/authController");
 
 router.post('/auth/login', loginController);
 router.post('/auth/register', registerController);
 router.get('/auth/reset/:email', resetLinkController);
 router.post('/auth/reset/:token', resetController);
-router.get('/auth', checkAuth, authorizeController);
+router.get('/auth', checkAuth, verifyAuthController);
 
 const {
     getApiStatusController
