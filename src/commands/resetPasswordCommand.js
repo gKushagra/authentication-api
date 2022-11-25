@@ -61,6 +61,7 @@ const resetPasswordCommand = async (password, requestId) => {
 
     try {
         var info = await sendEmailCommand({
+            from: `Softwright Single-Sign On <${config.sendgrid.verifiedSender}>`,
             to: result.email,
             subject: "Softwright OAuth Password Reset Request",
             text: "Your account password has been reset successfully!",

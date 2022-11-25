@@ -4,7 +4,7 @@ const logger = require('../logger');
 const { getDate } = require('../helperMethods');
 
 const sendEmailCommand = async (
-    _ = { from: "Softwright Single-Sign On", to, subject, text, html }
+    _ = { from, to, subject, text, html }
 ) => {
     logger.info(`${getDate().getUTCDate()}:: sendEmailCommand sending email: ${_}`);
     const transporter = await mailer.createTransport(config.email.smtp);
@@ -19,6 +19,7 @@ const sendEmailCommand = async (
         logger.info(`${getDate().getUTCDate()}:: sendEmailCommand email sent! info: ${info}`);
         return info;
     } catch (error) {
+        console.log(error);
         logger.error(`${getDate().getUTCDate()}:: sendEmailCommand Error: ${error}`)
         throw new Error("Error occurred while sending email");
     }

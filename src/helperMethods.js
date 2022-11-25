@@ -25,12 +25,12 @@ const responseMessages = {
 
 const getResetPasswordEmailHtml = (url) => {
     return `
-      <p>Hello!</p><br><br>
+      <p>Hello!</p>
       <p>You requested a password reset link. 
-      Please use this<a href="${url}" target="_blank">Link</a> 
-      to reset your password.</p><br><br>
+      Please use this <a href="${url}" target="_blank">Link</a> 
+      to reset your password.</p>
       <p>Thanks,<p>
-      <p>Softwright Single-Sign On (SSO) Team</p><br>
+      <p>Softwright Single-Sign On (SSO) Team</p>
       <small><b>Important:</b> If you did not initiate this request, 
       report at <b>support@softwright.in</b></small>
     `;
@@ -38,10 +38,10 @@ const getResetPasswordEmailHtml = (url) => {
 
 const getResetPasswordSuccessEmailHtml = () => {
     return `
-      <p>Hello!</p><br><br>
-      <p>Your account password has been reset successfully!</p><br><br>
+      <p>Hello!</p>
+      <p>Your account password has been reset successfully!</p>
       <p>Thanks,<p>
-      <p>Softwright Single-Sign On (SSO) Team</p><br>
+      <p>Softwright Single-Sign On (SSO) Team</p>
       <small><b>Important:</b> If you did not initiate this request, 
       report at <b>support@softwright.in</b></small>
     `;
@@ -53,7 +53,7 @@ const getPasswordResetUrl = (token, route = "lib/form1/reset") => {
     } else {
         let url = new URL(config.domain + route);
         url.searchParams.append("token", token);
-        return url;
+        return url.href;
     }
 };
 
