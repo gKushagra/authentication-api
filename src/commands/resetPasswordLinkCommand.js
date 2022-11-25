@@ -63,12 +63,17 @@ const resetPasswordLinkCommand = async (email) => {
 
     const html = getResetPasswordEmailHtml(url);
 
-    const info = await sendEmailCommand({
-        to: email,
-        subject: "Softwright OAuth Password Reset Request",
-        text: url,
-        html
-    });
+    try {
+        var info = await sendEmailCommand({
+            to: email,
+            subject: "Softwright OAuth Password Reset Request",
+            text: url,
+            html
+        });
+    } catch (error) {
+        logger.error(`${getDate().getUTCDate()}:: resetPasswordLinkCommand Error: ${error}`);
+        return { status: responseMessages.serverError, data: {} }
+    }
 
     logger.info(`${getDate().getUTCDate()}:: resetPasswordLinkCommand password reset email sent`);
 
