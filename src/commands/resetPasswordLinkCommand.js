@@ -29,7 +29,7 @@ const resetPasswordLinkCommand = async (email) => {
 
     try {
         logger.info(`${getDate().getUTCDate()}:: resetPasswordLinkCommand find user account`);
-        var result = await User({ email });
+        var result = await User.findOne({ email });
     } catch (error) {
         logger.error(`${getDate().getUTCDate()}:: resetPasswordLinkCommand Error: ${error}`);
         mongoose.disconnect();
@@ -65,9 +65,9 @@ const resetPasswordLinkCommand = async (email) => {
 
     try {
         var info = await sendEmailCommand({
-            from: `Softwright Single-Sign On <${config.sendgrid.verifiedSender}>`,
+            from: `Softwright.in <${config.sendgrid.verifiedSender}>`,
             to: email,
-            subject: "Softwright OAuth Password Reset Request",
+            subject: "Password Reset Request",
             text: url,
             html
         });

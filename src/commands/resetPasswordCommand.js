@@ -41,11 +41,12 @@ const resetPasswordCommand = async (password, requestId) => {
     }
 
     const updatedUser = new User({ email: result.email, password });
-    updatedUser.setPassword(password);
+    const hash = await updatedUser.getHash(password);
+    updatedUser.password = hash;
 
     try {
         logger.info(`${getDate().getUTCDate()}:: resetPasswordCommand update user`);
-        await updatedUser.findOneAndUpdate(
+        await User.findOneAndUpdate(
             { email: result.email },
             { password: updatedUser.password }
         );
@@ -61,9 +62,9 @@ const resetPasswordCommand = async (password, requestId) => {
 
     try {
         var info = await sendEmailCommand({
-            from: `Softwright Single-Sign On <${config.sendgrid.verifiedSender}>`,
+            from: `Softwright.in <${config.sendgrid.verifiedSender}>`,
             to: result.email,
-            subject: "Softwright OAuth Password Reset Request",
+            subject: "Password Reset Request",
             text: "Your account password has been reset successfully!",
             html
         });
