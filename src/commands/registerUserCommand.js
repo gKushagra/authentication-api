@@ -1,11 +1,15 @@
 const mongoose = require('mongoose');
 const config = require('../config');
-const { getDate } = require('../helperMethods');
+const { getDate, responseMessages } = require('../helperMethods');
 const logger = require('../logger');
-
 const User = mongoose.model("User");
 
 const registerUserCommand = async (user) => {
+    if (!user || !user['username'] || !user['password']
+        || user['username'] === '' || user['password'] === '') {
+        return { status: responseMessages.badRequest, data: {} }
+    }
+
     logger.info(`${getDate().getUTCDate()}:: registerUserCommand execute`);
 
     try {
@@ -13,7 +17,7 @@ const registerUserCommand = async (user) => {
         mongoose.connect(config.mongoUri, config.mongoOptions);
     } catch (error) {
         logger.error(`${getDate().getUTCDate()}:: registerUserCommand Error: ${error}`);
-        throw new Error(error);
+        return { status: responseMessages.serverError, data: {} }
     }
 
     try {
@@ -22,13 +26,13 @@ const registerUserCommand = async (user) => {
     } catch (error) {
         logger.error(`${getDate().getUTCDate()}:: registerUserCommand Error: ${error}`);
         mongoose.disconnect();
-        throw new Error(error);
+        return { status: responseMessages.serverError, data: {} }
     }
 
     if (result) {
         logger.info(`${getDate().getUTCDate()}:: registerUserCommand user exists`);
         mongoose.disconnect();
-        return { message: "email exists" }
+        return { status: responseMessages.badRequest, data: {} }
     }
 
     logger.info(`${getDate().getUTCDate()}:: registerUserCommand creating user object`);
@@ -43,14 +47,14 @@ const registerUserCommand = async (user) => {
     } catch (error) {
         logger.error(`${getDate().getUTCDate()}:: registerUserCommand Error: ${error}`);
         mongoose.disconnect();
-        throw new Error(error);
+        return { status: responseMessages.serverError, data: {} }
     }
 
     logger.info(`${getDate().getUTCDate()}:: registerUserCommand doc inserted`);
     const token = newUser.getToken();
     mongoose.disconnect();
 
-    return { message: "user created", token }
+    return { status: responseMessages.ok, data: { token } }
 }
 
 module.exports = registerUserCommand;

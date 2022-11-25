@@ -9,7 +9,6 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cors());
 
 require("./models/User");
-require("./models/Organization");
 require("./models/ResetAuth");
 
 const routes = require("./routes");
@@ -18,3 +17,5 @@ app.use("/api/v1", routes);
 app.listen(config.port || 2048, () => {
   console.log(`OAuth service running on port: ${config.port || 2048}`);
 });
+
+module.exports = app;

@@ -17,9 +17,10 @@ const sendEmailCommand = async (
             html: _.html
         });
         logger.info(`${getDate().getUTCDate()}:: sendEmailCommand email sent! info: ${info}`);
+        return info;
     } catch (error) {
         logger.error(`${getDate().getUTCDate()}:: sendEmailCommand Error: ${error}`)
-        throw new Error(error);
+        throw new Error("Error occurred while sending email");
     }
 };
 

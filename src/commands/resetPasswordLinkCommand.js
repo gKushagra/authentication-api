@@ -59,7 +59,7 @@ const resetPasswordLinkCommand = async (email) => {
 
     const html = getResetPasswordEmailHtml(url);
 
-    await sendEmailCommand({
+    const info = await sendEmailCommand({
         to: email,
         subject: "Softwright OAuth Password Reset Request",
         text: url,

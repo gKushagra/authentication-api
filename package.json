@@ -4,7 +4,7 @@
   "description": "REST API for Softwright OAuth app",
   "main": "app.js",
   "scripts": {
-    "test": "./node_modules/.bin/mocha --exit ./test/test.js",
+    "test": "mocha --exit ./src/test/",
     "start": "node ./src/app.js",
     "dev": "nodemon ./src/app.js",
     "build": "webpack"
@@ -13,6 +13,8 @@
   "license": "Apache 2.0",
   "dependencies": {
     "bcryptjs": "^2.4.3",
+    "chai": "^4.3.7",
+    "chai-http": "^4.3.0",
     "cors": "^2.8.5",
     "crypto-js": "^4.0.0",
     "dotenv": "^8.2.0",
@@ -21,6 +23,7 @@
     "mocha": "^8.2.1",
     "mongoose": "^5.11.11",
     "nodemailer": "^6.8.0",
+    "sinon": "^14.0.2",
     "uuid": "^8.3.2",
     "winston": "^3.8.2"
   },

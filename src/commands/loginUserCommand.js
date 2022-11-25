@@ -1,11 +1,15 @@
 const mongoose = require('mongoose');
 const config = require('../config');
-const { getDate } = require('../helperMethods');
+const { getDate, responseMessages } = require('../helperMethods');
 const logger = require('../logger');
-
 const User = mongoose.model("User");
 
 const loginUserCommand = async (user) => {
+    if (!user || !user['username'] || !user['password']
+        || user['username'] === '' || user['password'] === '') {
+        return { status: responseMessages.badRequest, data: {} }
+    }
+
     logger.info(`${getDate().getUTCDate()}:: loginUserCommand execute`);
 
     try {
@@ -13,7 +17,7 @@ const loginUserCommand = async (user) => {
         mongoose.connect(config.mongoUri, config.mongoOptions);
     } catch (error) {
         logger.error(`${getDate().getUTCDate()}:: loginUserCommand Error: ${error}`);
-        throw new Error(error);
+        return { status: responseMessages.serverError, data: {} }
     }
 
     try {
@@ -22,7 +26,7 @@ const loginUserCommand = async (user) => {
     } catch (error) {
         logger.error(`${getDate().getUTCDate()}:: loginUserCommand Error: ${error}`);
         mongoose.disconnect();
-        throw new Error(error);
+        return { status: responseMessages.serverError, data: {} }
     }
 
     mongoose.disconnect();
@@ -39,13 +43,13 @@ const loginUserCommand = async (user) => {
         if (validPassword) {
             logger.info(`${getDate().getUTCDate()}:: loginUserCommand login success`);
             const token = existingUser.getToken();
-            return { message: "authorized", token }
+            return { status: responseMessages.badRequest, data: { token } }
         } else {
             logger.info(`${getDate().getUTCDate()}:: loginUserCommand invalid password`);
-            return { message: "unauthorized" }
+            return { status: responseMessages.unauthorized, data: {} }
         }
     } else {
-        return { message: "user not found" }
+        return { status: responseMessages.badRequest, data: {} }
     }
 }
 

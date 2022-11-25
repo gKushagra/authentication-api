@@ -55,7 +55,7 @@ const resetPasswordCommand = async (password, requestId) => {
 
     const html = getResetPasswordSuccessEmailHtml();
 
-    await sendEmailCommand({
+    const info = await sendEmailCommand({
         to: result.email,
         subject: "Softwright OAuth Password Reset Request",
         text: "Your account password has been reset successfully!",
