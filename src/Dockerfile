@@ -21,6 +21,6 @@ WORKDIR /usr/src/app
 COPY --from=BUILD_IMAGE /usr/src/app/dist ./dist
 COPY --from=BUILD_IMAGE /usr/src/app/node_modules ./node_modules
 
-EXPOSE 15777
+EXPOSE 8989
 
 CMD [ "node", "./dist/main.js" ]
