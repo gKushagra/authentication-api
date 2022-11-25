@@ -7,7 +7,7 @@ const logger = winston.createLogger({
     defaultMeta: { service: 'oauth-api' },
     transports: [
         new winston.transports.File({
-            filename: path.join(__dirname + '/../logs/logs.json')
+            filename: path.join(__dirname + '/logs/logs.json')
         })
     ]
 });
