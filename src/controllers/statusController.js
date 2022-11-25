@@ -1,5 +1,6 @@
 const logger = require('../logger');
 const getApiStatusCommand = require('../commands/getApiStatusCommand');
+const { unwrapResult } = require('../helperMethods');
 const date = new Date();
 
 const getApiStatusController = async (req, res) => {
