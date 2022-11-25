@@ -53,9 +53,15 @@ const resetController = async (req, res) => {
     }
 }
 
+const authorizeController = async (req, res) => {
+    logger.info(`${date.getUTCDate()}:: authorizeController called`);
+    res.status(200).json({ msg: "authorized" });
+}
+
 module.exports = {
     registerController,
     loginController,
     resetLinkController,
-    resetController
+    resetController,
+    authorizeController
 };
