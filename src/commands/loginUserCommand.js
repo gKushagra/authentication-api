@@ -44,7 +44,7 @@ const loginUserCommand = async (user) => {
         if (validPassword) {
             logger.info(`${getDate().getUTCDate()}:: loginUserCommand login success`);
             const token = existingUser.getToken();
-            return { status: responseMessages.badRequest, data: { token } }
+            return { status: responseMessages.ok, data: { token } }
         } else {
             logger.info(`${getDate().getUTCDate()}:: loginUserCommand invalid password`);
             return { status: responseMessages.unauthorized, data: {} }
