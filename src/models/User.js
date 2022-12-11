@@ -20,8 +20,8 @@ UserSchema.methods.validatePassword = async (unencryptedPassword, hash) => {
     return await bcrypt.compare(unencryptedPassword, hash);
 }
 
-UserSchema.methods.getToken = () => {
-    return jwt.sign({ email: this.email }, config.tokenSecret, { expiresIn: 60 * 60 });
+UserSchema.methods.getToken = (email) => {
+    return jwt.sign({ email }, config.tokenSecret, { expiresIn: 60 * 60 });
 }
 
 mongoose.model("User", UserSchema);

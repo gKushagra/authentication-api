@@ -43,7 +43,7 @@ const loginUserCommand = async (user) => {
 
         if (validPassword) {
             logger.info(`${getDate().getUTCDate()}:: loginUserCommand login success`);
-            const token = existingUser.getToken();
+            const token = existingUser.getToken(result.email);
             return { status: responseMessages.ok, data: { token } }
         } else {
             logger.info(`${getDate().getUTCDate()}:: loginUserCommand invalid password`);

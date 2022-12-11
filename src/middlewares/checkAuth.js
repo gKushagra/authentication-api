@@ -1,18 +1,13 @@
+const config = require('../config');
 const jwt = require("jsonwebtoken");
 
 const checkAuth = (req, res, next) => {
-    const {
-        headers: { authorization },
-    } = req;
-
+    const authorization = req.headers.authorization;
     if (authorization && authorization.split(" ")[0] === "Bearer") {
-        jwt.decode(authorization.split(" ")[1], (err, decoded) => {
-            if (err) {
-                return res.status(500).json({});
-            }
-            req._id = decoded.id;
-            next();
-        });
+        const token = authorization.split(" ")[1];
+        const decoded = jwt.verify(token, config.tokenSecret);
+        req.email = decoded.email;
+        next();
     } else {
         return res.status(401).json({});
     }

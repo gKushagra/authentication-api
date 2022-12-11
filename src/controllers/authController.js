@@ -36,7 +36,7 @@ const resetController = async (req, res) => {
 
 const verifyAuthController = async (req, res) => {
     logger.info(`${date.getUTCDate()}:: authorizeController called`);
-    const result = unwrapResult({ status: 200, data: {} })
+    const result = unwrapResult({ status: 'OK', data: {} })
     logger.info(`${date.getUTCDate()}:: authorizeController done`);
     res.status(result.code).json(result.data);
 }
